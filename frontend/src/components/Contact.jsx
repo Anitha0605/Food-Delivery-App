@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Mail, Phone, MapPin, Send, Clock, Globe } from 'lucide-react';
+import { StoreContext } from '../context/StoreContext'; // StoreContext-ஐ இம்போர்ட் செய்யவும்
 
 const Contact = () => {
+  const { url } = useContext(StoreContext); // Context-ல் இருந்து URL-ஐ எடுக்கவும்
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
 
@@ -10,7 +12,8 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/messages/send', {
+      // localhost-க்கு பதிலாக url வேரியபிளைப் பயன்படுத்தவும்
+      const res = await fetch(`${url}/api/messages/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -25,7 +28,7 @@ const Contact = () => {
         alert("❌ " + data.message);
       }
     } catch (err) {
-      alert(" Server connection error!");
+      alert("Server connection error! Please check your backend.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +96,7 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Simple Map Placeholder */}
+            {/* Banner Section */}
             <div className="bg-orange-500 rounded-[40px] p-8 text-white relative overflow-hidden">
                <div className="relative z-10">
                  <h3 className="text-2xl font-bold mb-2">Fastest Delivery in Chennai!</h3>
@@ -126,6 +129,7 @@ const Contact = () => {
                   type="email" 
                   placeholder="Enter your email" 
                   required
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="w-full p-4 rounded-2xl border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white outline-none focus:ring-2 ring-orange-500/50 transition-all" 
