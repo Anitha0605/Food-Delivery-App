@@ -11,7 +11,7 @@ const Admin = () => {
   const [orders, setOrders] = useState([]);
   const [messages, setMessages] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
-  const url = "http://localhost:5000";
+  const url = "import.meta.env.VITE_API_URL || http://localhost:5000";
 
   // --- 1. Fetch Data ---
   const fetchData = async () => {

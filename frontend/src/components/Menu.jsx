@@ -10,7 +10,7 @@ const Menu = ({ addToCart }) => {
   const categories = ['All', 'South Indian', 'Non-Veg', 'Drinks'];
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/food/list')
+    fetch(`${import.meta.env.VITE_API_URL}/api/food/list`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {

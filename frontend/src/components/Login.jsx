@@ -27,7 +27,7 @@ const Login = () => {
       endpoint = "/api/admin/login";
     }
 
-    const url = `http://localhost:5000${endpoint}`;
+    const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
 
     try {
       const response = await fetch(url, {

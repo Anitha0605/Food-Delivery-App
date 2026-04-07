@@ -5,7 +5,7 @@ import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiRefreshCw, FiMapPin } fro
 const MyOrders = () => {
   const [data, setData] = useState([]);
   const token = localStorage.getItem("token");
-  const url = "http://localhost:5000";
+  const url = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchOrders = async () => {
     try {
