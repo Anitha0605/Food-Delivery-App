@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Menu from './components/Menu';
@@ -17,55 +17,38 @@ import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
 
 function App() {
-  // Cart State
-  const [cart, setCart] = useState([]);
-  
-  // User State (Retrieved from LocalStorage)
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  // Add to Cart Function
-  const addToCart = (item) => {
-    const exist = cart.find((x) => x._id === item._id);
-    if (exist) {
-      setCart(cart.map((x) => x._id === item._id ? { ...exist, quantity: exist.quantity + 1 } : x));
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
-  };
+  // குறிப்பு: cart மற்றும் user ஸ்டேட்கள் இப்போது StoreContext-ல் இருந்து கையாளப்படும்.
+  // எனவே இங்கிருக்கும் addToCart மற்றும் useState தேவையில்லை.
 
   return (
     <ThemeProvider>
-      <Router>
-        <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300 flex flex-col">
-          {/* Navbar - Common to all pages */}
-          <Navbar cartCount={cart.length} user={user} setUser={setUser} />
-          
-          {/* Main Content Area */}
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home addToCart={addToCart} />} />
-              <Route path="/menu" element={<Menu addToCart={addToCart} />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} />
-              <Route path="/login" element={<Login setUser={setUser} />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/my-orders" element={<MyOrder />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/verify" element={<Verify />} /> {/* Verify Page - Payment Verification Page */}
-            </Routes>
-          </main>
+      {/* ❌ Router இங்கிருந்து நீக்கப்பட்டது, ஏனென்றால் அது main.jsx-ல் உள்ளது */}
+      <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300 flex flex-col">
+        
+        {/* Navbar - Common to all pages */}
+        <Navbar />
+        
+        {/* Main Content Area */}
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/myorders" element={<MyOrder />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/verify" element={<Verify />} /> 
+          </Routes>
+        </main>
 
-          {/* Footer - Common to all pages */}
-          <Footer />
-        </div>
-      </Router>
+        {/* Footer - Common to all pages */}
+        <Footer />
+      </div>
       <ToastContainer />
     </ThemeProvider>
-        
   );
 }
 
