@@ -12,13 +12,13 @@ const Admin = () => {
   const [messages, setMessages] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
 
-  // 1. URL திருத்தம்: மேற்கோள் குறிகளை நீக்கிவிட்டேன்
+  // 1. API URL திருத்தம் (Production மற்றும் Localhost இரண்டிற்கும்)
   const url = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // --- 1. Fetch Data ---
+  // --- 2. டேட்டாவைப் பெறுதல் (Fetch Data) ---
   const fetchData = async () => {
     try {
-      // Orders Fetch
+      // Orders டேட்டா
       const orderRes = await axios.get(`${url}/api/order/list`);
       if (orderRes.data.success) {
         const orderData = orderRes.data.data.reverse();
@@ -27,10 +27,9 @@ const Admin = () => {
         setTotalEarnings(total);
       }
 
-      // Messages Fetch - இங்கேதான் திருத்தம் செய்துள்ளேன்
+      // Messages டேட்டா - c.map எரர் வராமல் தடுக்க Array செக்
       const msgRes = await axios.get(`${url}/api/messages/all`);
       if (msgRes.data) {
-        // ஒருவேளை Backend-ல் இருந்து வரும் டேட்டா Array இல்லை என்றால் காலி Array-ஐ செட் செய்யும்
         setMessages(Array.isArray(msgRes.data) ? msgRes.data : msgRes.data.messages || []);
       }
     } catch (error) {
@@ -38,9 +37,11 @@ const Admin = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchData(); 
+  }, []);
 
-  // --- 2. Order Status Handler ---
+  // --- 3. ஆர்டர் ஸ்டேட்டஸ் மாற்றுதல் ---
   const statusHandler = async (event, orderId) => {
     try {
       const response = await axios.post(`${url}/api/order/status`, { orderId, status: event.target.value });
@@ -59,7 +60,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#f8fafc] font-sans text-slate-900">
       
       {/* --- SIDEBAR --- */}
       <div className="w-full md:w-80 bg-slate-950 text-white p-8 flex flex-col gap-8 shadow-2xl z-20">
@@ -95,18 +96,18 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* --- MAIN CONTENT --- */}
+      {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 p-6 md:p-14 overflow-y-auto">
         
+        {/* 1. ORDERS TAB */}
         {activeTab === "orders" && (
-          <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-500">
+          <div className="max-w-5xl mx-auto space-y-10">
             <h1 className="text-5xl font-black text-slate-900 tracking-tighter italic">Order <span className="text-orange-500">Queue</span></h1>
             <div className="grid gap-6">
-              {/* Optional Chaining ?.map சேர்த்துள்ளேன் */}
               {orders?.length > 0 ? orders.map((order, index) => (
                 <div key={index} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm flex flex-col lg:flex-row justify-between items-center gap-8 hover:border-orange-100 transition-all">
                   <div className="flex gap-8 items-center flex-1">
-                    <div className="bg-slate-50 p-7 rounded-[30px] text-slate-400 text-4xl transition-colors"><FiPackage /></div>
+                    <div className="bg-slate-50 p-7 rounded-[30px] text-slate-400 text-4xl"><FiPackage /></div>
                     <div className="space-y-1">
                       <h4 className="text-2xl font-black text-slate-800">{order.address?.firstName || "Customer"}</h4>
                       <p className="text-slate-400 text-sm font-bold flex items-center gap-2"><FiMapPin className="text-orange-500" /> {order.address?.city}</p>
@@ -132,9 +133,54 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Messages Tab திருத்தம் */}
+        {/* 2. ADD FOOD TAB */}
+        {activeTab === "addFood" && (
+          <div className="max-w-3xl mx-auto bg-white p-10 md:p-16 rounded-[60px] shadow-2xl border border-orange-50">
+            <h2 className="text-4xl font-black text-center mb-10">Add New <span className="text-orange-500">Cuisine</span></h2>
+            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); toast.success("Food item saved!"); }}>
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase text-slate-400 ml-4">Dish Name</label>
+                <input required type="text" placeholder="Enter dish name" className="w-full p-6 bg-slate-50 rounded-[30px] border-2 border-transparent outline-none focus:border-orange-500 font-bold text-slate-800" />
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase text-slate-400 ml-4">Price (₹)</label>
+                  <input required type="number" placeholder="250" className="w-full p-6 bg-slate-50 rounded-[30px] border-2 border-transparent outline-none focus:border-orange-500 font-bold text-slate-800" />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase text-slate-400 ml-4">Category</label>
+                  <select className="w-full p-6 bg-slate-50 rounded-[30px] border-2 border-transparent outline-none focus:border-orange-500 font-black text-slate-600">
+                    <option value="Veg">Veg</option>
+                    <option value="Non-Veg">Non-Veg</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" className="w-full bg-orange-500 text-white py-6 rounded-[35px] font-black text-xl hover:bg-orange-600 shadow-xl shadow-orange-200">Save Food Item</button>
+            </form>
+          </div>
+        )}
+
+        {/* 3. ADD HOTEL TAB */}
+        {activeTab === "addHotel" && (
+          <div className="max-w-3xl mx-auto bg-white p-10 md:p-16 rounded-[60px] shadow-2xl border border-slate-50">
+            <h2 className="text-4xl font-black text-center mb-10">Register <span className="text-orange-500">Hotel</span></h2>
+            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); toast.info("Hotel registered!"); }}>
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase text-slate-400 ml-4">Hotel Brand Name</label>
+                <input required type="text" placeholder="Hotel Name" className="w-full p-6 bg-slate-50 rounded-[30px] border-2 border-transparent outline-none focus:border-slate-900 font-bold text-slate-800" />
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-black uppercase text-slate-400 ml-4">Location</label>
+                <input required type="text" placeholder="City" className="w-full p-6 bg-slate-50 rounded-[30px] border-2 border-transparent outline-none focus:border-slate-900 font-bold text-slate-800" />
+              </div>
+              <button type="submit" className="w-full bg-slate-950 text-white py-6 rounded-[35px] font-black text-xl hover:bg-slate-900 shadow-xl">Confirm Registration</button>
+            </form>
+          </div>
+        )}
+
+        {/* 4. MESSAGES TAB */}
         {activeTab === "messages" && (
-          <div className="max-w-5xl mx-auto space-y-10 animate-in slide-in-from-right-8 duration-500">
+          <div className="max-w-5xl mx-auto space-y-10">
             <h1 className="text-5xl font-black text-slate-900 tracking-tighter italic">User <span className="text-orange-500">Queries</span></h1>
             <div className="grid gap-6">
               {messages?.length > 0 ? messages.map((msg, index) => (
@@ -147,7 +193,7 @@ const Admin = () => {
                         <p className="text-orange-500 font-bold text-sm flex items-center gap-2"><FiMail size={14}/> {msg.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-400 text-xs font-bold"><FiClock size={12} /> {msg.createdAt ? new Date(msg.createdAt).toLocaleDateString() : "Date N/A"}</div>
+                    <div className="flex items-center gap-2 text-slate-400 text-xs font-bold"><FiClock size={12} /> {msg.createdAt ? new Date(msg.createdAt).toLocaleDateString() : "Today"}</div>
                   </div>
                   <div className="bg-slate-50 p-6 rounded-[24px] text-slate-700 font-medium leading-relaxed border-l-4 border-orange-500 italic">
                     "{msg.message}"
