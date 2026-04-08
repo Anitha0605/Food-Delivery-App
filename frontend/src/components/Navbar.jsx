@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, LogOut, User, Sun, Moon, Phone, MapPin } from 'lucide-react';
 import { useTheme } from '../context/ThemeContent';
-import { StoreContext } from '../context/StoreContext'; // StoreContext-ஐ இம்போர்ட் செய்கிறோம்
+import { StoreContext } from '../context/StoreContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -15,15 +15,18 @@ const Navbar = () => {
   // லோக்கல் ஸ்டோரேஜிலிருந்து பயனர் விவரங்களை எடுக்கிறோம்
   const userData = JSON.parse(localStorage.getItem("user"));
 
-  // கார்ட்டில் உள்ள மொத்த பொருட்களின் எண்ணிக்கையை கணக்கிடுகிறோம்
-  const cartCount = Object.values(cartItems).reduce((acc, count) => acc + count, 0);
+  // ✅ திருத்தப்பட்ட வரி: cartItems ஆப்ஜெக்ட்டாக இருந்தால் மட்டுமே கணக்கிடும். 
+  // இல்லையெனில் எரர் வராமல் 0 என்று காட்டும்.
+  const cartCount = (cartItems && typeof cartItems === 'object') 
+    ? Object.values(cartItems).reduce((acc, count) => acc + count, 0) 
+    : 0;
 
   const logout = () => {
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // டோக்கனையும் நீக்க வேண்டும்
-    setToken(""); // Context-ல் உள்ள டோக்கனை காலியாக்குகிறோம்
+    localStorage.removeItem('token');
+    setToken("");
     navigate('/login');
-    window.location.reload(); // பக்கத்தை புதுப்பிப்பதன் மூலம் பழைய டேட்டாக்கள் மறையும்
+    window.location.reload(); 
   };
 
   const isActive = (path) => location.pathname === path;
