@@ -1,36 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Trash2, ArrowRight, ShoppingBag, Ticket, Info, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { StoreContext } from '../context/StoreContext'; // Context-ஐ இம்போர்ட் செய்யவும்
 
-const Cart = ({ cart = [], setCart }) => {
+const Cart = () => {
   const navigate = useNavigate();
-  const url = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  
+  // ✅ Context-ல் இருந்து டேட்டாவை எடுக்கிறோம்
+  const { cartItems, food_list, removeFromCart, addToCart, url, token } = useContext(StoreContext);
+
   const user = JSON.parse(localStorage.getItem('user'));
-  const token = localStorage.getItem('token');
 
   // Coupon & Discount States
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
 
-  // 1. Quantity Update Function
-  const updateQuantity = (index, type) => {
-    const newCart = [...cart];
-    const currentQty = newCart[index].quantity || 1;
-
-    if (type === 'increase') {
-      newCart[index].quantity = currentQty + 1;
-    } else if (type === 'decrease' && currentQty > 1) {
-      newCart[index].quantity = currentQty - 1;
-    }
-    setCart(newCart);
-  };
+  // 1. கார்ட்டில் உள்ள பொருட்களை மட்டும் பிரித்தெடுத்தல்
+  const cartData = food_list.filter(item => cartItems[item._id] > 0);
 
   // 2. Bill Calculation
-  const subtotal = cart.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+  const subtotal = cartData.reduce((acc, item) => acc + (item.price * cartItems[item._id]), 0);
   const gstAmount = subtotal * 0.05; // 5% GST
-  const platformFee = cart.length > 0 ? 5 : 0;
-  const deliveryFee = cart.length > 0 ? 40 : 0;
+  const platformFee = subtotal > 0 ? 5 : 0;
+  const deliveryFee = subtotal > 0 ? 40 : 0;
   
   const totalBeforeDiscount = subtotal + gstAmount + platformFee + deliveryFee;
   const finalAmount = totalBeforeDiscount - discount;
@@ -45,12 +38,6 @@ const Cart = ({ cart = [], setCart }) => {
     }
   };
 
-  const removeFromCart = (index) => {
-    const newCart = cart.filter((_, i) => i !== index);
-    setCart(newCart);
-    if (newCart.length === 0) setDiscount(0);
-  };
-
   const handleCheckout = async () => {
     if (!token) {
       alert("Please login first!");
@@ -59,7 +46,7 @@ const Cart = ({ cart = [], setCart }) => {
 
     const orderData = {
       userId: user?.id || user?._id,
-      items: cart,
+      items: cartData.map(item => ({...item, quantity: cartItems[item._id]})),
       amount: finalAmount,
       address: {
         firstName: user?.name || "Guest",
@@ -75,8 +62,8 @@ const Cart = ({ cart = [], setCart }) => {
       });
 
       if (response.data.success) {
-        alert(" Order Placed Successfully!");
-        setCart([]); 
+        alert("✅ Order Placed Successfully!");
+        // கார்ட்டை காலி செய்ய Context-ல் ஒரு function தேவைப்படும், அல்லது பேஜ் ரீலோட் செய்யலாம்
         navigate('/myorders'); 
       }
     } catch (err) {
@@ -96,16 +83,16 @@ const Cart = ({ cart = [], setCart }) => {
         
         {/* Left Side: Items List */}
         <div className="lg:col-span-2 space-y-4">
-          {cart.length === 0 ? (
+          {cartData.length === 0 ? (
             <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed dark:border-slate-800">
               <p className="text-slate-400 text-lg">Your cart is empty!</p>
               <button onClick={() => navigate('/')} className="mt-4 text-orange-500 font-bold hover:underline">Browse Menu</button>
             </div>
           ) : (
-            cart.map((item, index) => (
-              <div key={index} className="flex items-center gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border dark:border-slate-800 hover:shadow-md transition">
+            cartData.map((item) => (
+              <div key={item._id} className="flex items-center gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border dark:border-slate-800 hover:shadow-md transition">
                 <img 
-                  src={item.image.startsWith('http') ? item.image : `${url}/images/${item.image}`} 
+                  src={`${url}/images/${item.image}`} 
                   alt={item.name} 
                   className="w-24 h-24 object-cover rounded-xl bg-gray-100"
                 />
@@ -115,14 +102,13 @@ const Cart = ({ cart = [], setCart }) => {
                   
                   {/* Quantity Toggler */}
                   <div className="flex items-center gap-3 bg-gray-100 dark:bg-slate-800 w-fit px-2 py-1 rounded-lg">
-                    <button onClick={() => updateQuantity(index, 'decrease')} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-md text-orange-500 transition"><Minus size={16}/></button>
-                    <span className="font-bold dark:text-white w-6 text-center">{item.quantity || 1}</span>
-                    <button onClick={() => updateQuantity(index, 'increase')} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-md text-orange-500 transition"><Plus size={16}/></button>
+                    <button onClick={() => removeFromCart(item._id)} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-md text-orange-500 transition"><Minus size={16}/></button>
+                    <span className="font-bold dark:text-white w-6 text-center">{cartItems[item._id]}</span>
+                    <button onClick={() => addToCart(item._id)} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-md text-orange-500 transition"><Plus size={16}/></button>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-lg dark:text-white mb-2">₹{item.price * (item.quantity || 1)}</p>
-                  <button onClick={() => removeFromCart(index)} className="text-red-400 p-2 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full transition"><Trash2 size={20} /></button>
+                  <p className="font-black text-lg dark:text-white mb-2">₹{item.price * cartItems[item._id]}</p>
                 </div>
               </div>
             ))
@@ -161,8 +147,8 @@ const Cart = ({ cart = [], setCart }) => {
             </div>
             <button 
               onClick={handleCheckout} 
-              disabled={cart.length === 0}
-              className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition transform active:scale-95 ${cart.length === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20'}`}
+              disabled={cartData.length === 0}
+              className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition transform active:scale-95 ${cartData.length === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20'}`}
             >
               Confirm Order <ArrowRight size={22} />
             </button>
