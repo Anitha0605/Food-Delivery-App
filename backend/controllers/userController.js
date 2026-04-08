@@ -2,7 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Token உருவாக்குதல்
+// Token Creation
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || "secret_key");
 }

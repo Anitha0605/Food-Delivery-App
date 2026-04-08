@@ -3,7 +3,6 @@ const foodRouter = express.Router();
 const Food = require("../models/Food");
 
 // 1.Get All Foods
-// URL: http://localhost:5000/api/food/list
 foodRouter.get("/list", async (req, res) => {
     try {
         const foods = await Food.find({});
@@ -22,7 +21,6 @@ foodRouter.get("/list", async (req, res) => {
 });
 
 // 2. Add New Food
-// URL: http://localhost:5000/api/food/add
 foodRouter.post("/add", async (req, res) => {
     try {
         const newFood = new Food({
@@ -31,8 +29,8 @@ foodRouter.post("/add", async (req, res) => {
             price: req.body.price,
             image: req.body.image,
             category: req.body.category,
-            hotelName: req.body.hotelName || "YumDash Special", // Default value if empty
-            location: req.body.location || "Chennai",         // Default value if empty
+            hotelName: req.body.hotelName || "YumDash Special", 
+            location: req.body.location || "Chennai",         
             available: req.body.available !== undefined ? req.body.available : true
         });
 
@@ -52,7 +50,6 @@ foodRouter.post("/add", async (req, res) => {
 });
 
 // 3. Bulk Add Foods (Admin Panel)
-// URL: http://localhost:5000/api/food/bulk-add
 foodRouter.post("/bulk-add", async (req, res) => {
     try {
        
@@ -72,7 +69,6 @@ foodRouter.post("/bulk-add", async (req, res) => {
 });
 
 // 4. Remove Food
-// URL: http://localhost:5000/api/food/remove
 foodRouter.post("/remove", async (req, res) => {
     try {
         const food = await Food.findByIdAndDelete(req.body.id);

@@ -16,7 +16,6 @@ const Register = () => {
     setError('');
 
     try {
-      // URL திருத்தப்பட்டுள்ளது: /api/users/ -> /api/user/
       const res = await fetch(`${API_BASE_URL}/api/user/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

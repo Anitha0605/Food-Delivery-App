@@ -25,7 +25,7 @@ const Cart = () => {
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'WELCOME50' && subtotal > 200) {
       setDiscount(50);
-      alert("🎉 Promo Applied! ₹50 Discounted.");
+      alert(" Promo Applied! ₹50 Discounted.");
     } else {
       alert("Invalid Coupon or Minimum Order ₹200 required.");
       setDiscount(0);
@@ -56,8 +56,8 @@ const Cart = () => {
       });
 
       if (response.data.success) {
-        alert("✅ Order Placed Successfully!");
-        clearCart(); // ✅ ஆர்டர் முடிந்ததும் கவுண்ட் 0 ஆகும்
+        alert(" Order Placed Successfully!");
+        clearCart(); 
         navigate('/myorders'); 
       }
     } catch (err) {

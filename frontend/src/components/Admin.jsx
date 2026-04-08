@@ -12,10 +12,10 @@ const Admin = () => {
   const [messages, setMessages] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState(0);
 
-  // 1. API URL திருத்தம் (Production மற்றும் Localhost இரண்டிற்கும்)
+  // 1. API URL Configuration (Vite Environment Variable)
   const url = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // --- 2. டேட்டாவைப் பெறுதல் (Fetch Data) ---
+  // --- 2. Fetch Data ---
   const fetchData = async () => {
     try {
       // Orders டேட்டா
@@ -27,7 +27,7 @@ const Admin = () => {
         setTotalEarnings(total);
       }
 
-      // Messages டேட்டா - c.map எரர் வராமல் தடுக்க Array செக்
+      // Messages 
       const msgRes = await axios.get(`${url}/api/messages/all`);
       if (msgRes.data) {
         setMessages(Array.isArray(msgRes.data) ? msgRes.data : msgRes.data.messages || []);
@@ -41,7 +41,7 @@ const Admin = () => {
     fetchData(); 
   }, []);
 
-  // --- 3. ஆர்டர் ஸ்டேட்டஸ் மாற்றுதல் ---
+  // --- 3. Update Order Status ---
   const statusHandler = async (event, orderId) => {
     try {
       const response = await axios.post(`${url}/api/order/status`, { orderId, status: event.target.value });

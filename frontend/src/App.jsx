@@ -16,12 +16,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
 
 function App() {
-  // குறிப்பு: cart மற்றும் user ஸ்டேட்கள் இப்போது StoreContext-ல் இருந்து கையாளப்படும்.
-  // எனவே இங்கிருக்கும் addToCart மற்றும் useState தேவையில்லை.
 
   return (
     <ThemeProvider>
-      {/* ❌ Router இங்கிருந்து நீக்கப்பட்டது, ஏனென்றால் அது main.jsx-ல் உள்ளது */}
+     
       <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300 flex flex-col">
         
         {/* Navbar - Common to all pages */}

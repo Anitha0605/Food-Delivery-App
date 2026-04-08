@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { Mail, Phone, MapPin, Send, Clock, Globe } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext'; // StoreContext-ஐ இம்போர்ட் செய்யவும்
+import { StoreContext } from '../context/StoreContext'; 
 
 const Contact = () => {
-  const { url } = useContext(StoreContext); // Context-ல் இருந்து URL-ஐ எடுக்கவும்
+  const { url } = useContext(StoreContext); 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
 
@@ -12,7 +12,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      // localhost-க்கு பதிலாக url வேரியபிளைப் பயன்படுத்தவும்
+      
       const res = await fetch(`${url}/api/messages/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

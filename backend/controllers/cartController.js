@@ -1,5 +1,4 @@
 const userModel = require("../models/User");
-// கார்ட்டில் சேர்க்க (Add to cart)
 const addToCart = async (req, res) => {
     try {
         let userData = await userModel.findById(req.body.userId);
@@ -16,7 +15,7 @@ const addToCart = async (req, res) => {
     }
 };
 
-// கார்ட்டில் இருந்து நீக்க (Remove)
+// Remove from Cart
 const removeFromCart = async (req, res) => {
     try {
         let userData = await userModel.findById(req.body.userId);
@@ -31,7 +30,7 @@ const removeFromCart = async (req, res) => {
     }
 };
 
-// கார்ட் டேட்டாவைப் பெற (Get Cart - 404 எரர் வரும் இடம்)
+// Get Cart Data
 const getCart = async (req, res) => {
     try {
         let userData = await userModel.findById(req.body.userId);
@@ -42,5 +41,4 @@ const getCart = async (req, res) => {
     }
 };
 
-// மிக முக்கியம்: இதைக் கடைசியில் சரியாகக் கொடுக்கவும்
 module.exports = { addToCart, removeFromCart, getCart };

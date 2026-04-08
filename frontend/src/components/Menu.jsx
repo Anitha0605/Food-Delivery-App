@@ -29,7 +29,7 @@ const Menu = ({ addToCart }) => {
     : foods.filter(f => f.category === activeCategory);
 
   if (loading) {
-    return <div className="text-center py-20 font-bold text-orange-500">Loading 100+ Delicacies...</div>;
+    return <div className="text-center py-20 font-bold text-orange-500">Loading 63+ Delicacies...</div>;
   }
 
   return (

@@ -10,7 +10,7 @@ const StoreContextProvider = (props) => {
 
     const url = "https://food-delivery-app-7gis.onrender.com";
 
-    // ✅ கார்ட்டை முழுமையாகக் காலி செய்ய
+   
     const clearCart = () => {
         setCartItems({});
     };
@@ -94,7 +94,7 @@ const StoreContextProvider = (props) => {
         url,
         token,
         setToken,
-        clearCart // ✅ மற்ற கோப்புகளில் பயன்படுத்த இதை இங்கே சேர்க்க வேண்டும்
+        clearCart 
     };
 
     return (

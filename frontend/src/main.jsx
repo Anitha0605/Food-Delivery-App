@@ -7,7 +7,6 @@ import StoreContextProvider from './context/StoreContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* ரவுட்டர் இங்கே மட்டும் இருந்தால் போதும் */}
     <BrowserRouter>
       <StoreContextProvider>
         <App />

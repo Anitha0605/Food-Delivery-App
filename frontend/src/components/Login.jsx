@@ -7,10 +7,10 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const navigate = useNavigate();
-  const location = useLocation(); // URL-ஐக் கவனிக்க
+  const location = useLocation(); 
   const { setToken } = useContext(StoreContext);
 
-  // ✅ நேவ்பாரில் இருந்து வரும்போது தானாகவே Sign Up மோடுக்கு மாற்ற:
+ 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('mode') === 'signup') {

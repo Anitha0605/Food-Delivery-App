@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Message = require("../models/Message");
 
-// POST: http://localhost:5000/api/messages/send
+// POST: Send a Message
 router.post("/send", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -22,7 +22,7 @@ router.post("/send", async (req, res) => {
   }
 });
 
-// GET: http://localhost:5000/api/messages/all (Admin Panel - List All Messages)
+// GET: (Admin Panel - List All Messages)
 router.get("/all", async (req, res) => {
   try {
     const messages = await Message.find().sort({ createdAt: -1 });

@@ -8,15 +8,9 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-
-  // StoreContext-லிருந்து தேவையான டேட்டாவை எடுக்கிறோம்
   const { cartItems, setToken, token } = useContext(StoreContext);
-
-  // லோக்கல் ஸ்டோரேஜிலிருந்து பயனர் விவரங்களை எடுக்கிறோம்
   const userData = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ திருத்தப்பட்ட வரி: cartItems ஆப்ஜெக்ட்டாக இருந்தால் மட்டுமே கணக்கிடும். 
-  // இல்லையெனில் எரர் வராமல் 0 என்று காட்டும்.
   const cartCount = (cartItems && typeof cartItems === 'object') 
     ? Object.values(cartItems).reduce((acc, count) => acc + count, 0) 
     : 0;

@@ -8,7 +8,7 @@ const Home = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // StoreContext-ல் இருந்து தேவையானவற்றை எடுக்கிறோம்
+ 
   const { url, addToCart } = useContext(StoreContext);
 
   const hotelMeta = {
@@ -29,7 +29,6 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ Localhost மாற்றப்பட்டு url (Render Link) பயன்படுத்தப்பட்டுள்ளது
         const res = await fetch(`${url}/api/food/list`);
         const data = await res.json();
         if (data.success) {
@@ -152,7 +151,7 @@ const Home = () => {
                       <div className="flex justify-between items-center mt-4">
                         <p className="text-slate-900 dark:text-white font-black text-2xl">₹{food.price}</p>
                         <button 
-                          onClick={() => addToCart(food._id)} // ✅ food._id அனுப்பப்படுகிறது
+                          onClick={() => addToCart(food._id)}
                           className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 transition-colors active:scale-90"
                         >
                           <Plus size={20} />
