@@ -8,8 +8,8 @@ const StoreContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [token, setToken] = useState("");
 
-   // உங்கள் Render Backend URL-ஐ நேரடியாகக் கொடுக்கவும்
-const url = "https://food-delivery-app-7gis.onrender.com";
+    // உங்கள் Render Backend URL
+    const url = "https://food-delivery-app-7gis.onrender.com";
 
     const addToCart = async (itemId) => {
         if (!cartItems[itemId]) {
@@ -18,14 +18,22 @@ const url = "https://food-delivery-app-7gis.onrender.com";
             setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
         }
         if (token) {
-            await axios.post(url + "/api/cart/add", { itemId }, { headers: { token } });
+            try {
+                await axios.post(url + "/api/cart/add", { itemId }, { headers: { token } });
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+            }
         }
     };
 
     const removeFromCart = async (itemId) => {
         setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
         if (token) {
-            await axios.post(url + "/api/cart/remove", { itemId }, { headers: { token } });
+            try {
+                await axios.post(url + "/api/cart/remove", { itemId }, { headers: { token } });
+            } catch (error) {
+                console.error("Error removing from cart:", error);
+            }
         }
     };
 
@@ -42,7 +50,6 @@ const url = "https://food-delivery-app-7gis.onrender.com";
         return totalAmount;
     };
 
-    // 2. Food List பெறுதல் (இதில்தான் உங்களுக்கு எரர் வந்தது)
     const fetchFoodList = async () => {
         try {
             const response = await axios.get(url + "/api/food/list");
@@ -53,16 +60,23 @@ const url = "https://food-delivery-app-7gis.onrender.com";
     };
 
     const loadCartData = async (token) => {
-        const response = await axios.post(url + "/api/cart/get", {}, { headers: { token } });
-        setCartItems(response.data.cartData);
+        try {
+            const response = await axios.post(url + "/api/cart/get", {}, { headers: { token } });
+            // ✅ ஒருவேளை cartData null ஆக வந்தால் காலியான ஆப்ஜெக்ட் {} வைக்கும்படி மாற்றப்பட்டுள்ளது
+            setCartItems(response.data.cartData || {}); 
+        } catch (error) {
+            console.error("Error loading cart data:", error);
+            setCartItems({}); // எரர் வந்தால் கார்ட்டை காலியாக வைக்கும்
+        }
     };
 
     useEffect(() => {
         async function loadData() {
             await fetchFoodList();
-            if (localStorage.getItem("token")) {
-                setToken(localStorage.getItem("token"));
-                await loadCartData(localStorage.getItem("token"));
+            const storedToken = localStorage.getItem("token");
+            if (storedToken) {
+                setToken(storedToken);
+                await loadCartData(storedToken);
             }
         }
         loadData();
@@ -75,7 +89,7 @@ const url = "https://food-delivery-app-7gis.onrender.com";
         addToCart,
         removeFromCart,
         getTotalCartAmount,
-        url, // இந்த url-ஐத்தான் மற்ற பேஜ்களில் பயன்படுத்த வேண்டும்
+        url,
         token,
         setToken
     };

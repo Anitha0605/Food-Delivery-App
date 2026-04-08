@@ -7,7 +7,6 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Cart from './components/Cart';
 import Login from './components/Login';
-import Register from './components/Register';
 import MyOrder from './components/MyOrder';
 import Admin from './components/Admin';
 import Footer from './components/Footer';
@@ -37,7 +36,6 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/myorders" element={<MyOrder />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/verify" element={<Verify />} /> 

@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { StoreContext } from '../context/StoreContext';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const navigate = useNavigate();
+  const location = useLocation(); // URL-ஐக் கவனிக்க
+  const { setToken } = useContext(StoreContext);
+
+  // ✅ நேவ்பாரில் இருந்து வரும்போது தானாகவே Sign Up மோடுக்கு மாற்ற:
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('mode') === 'signup') {
+      setIsLogin(false);
+    } else {
+      setIsLogin(true);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,14 +28,13 @@ const Login = () => {
     e.preventDefault();
     
     let endpoint = isLogin ? "/api/user/login" : "/api/user/register";
-    
     if (isLogin && formData.email === "admin@yumdash.com") {
       endpoint = "/api/admin/login";
     }
 
-   // உங்கள் Render URL-ஐ இங்கே நேரடியாகக் கொடுங்கள்
-const API_BASE_URL = "https://food-delivery-app-7gis.onrender.com";
-const url = `${API_BASE_URL}${endpoint}`;
+    const API_BASE_URL = "https://food-delivery-app-7gis.onrender.com";
+    const url = `${API_BASE_URL}${endpoint}`;
+
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -34,8 +46,10 @@ const url = `${API_BASE_URL}${endpoint}`;
 
       if (data.success) {
         localStorage.setItem("token", data.token);
-
+        setToken(data.token);
+        
         if (formData.email === "admin@yumdash.com") {
+          localStorage.setItem("user", JSON.stringify({ name: "Admin", role: "admin" }));
           alert("Admin Login Success!");
           navigate("/admin"); 
         } else {

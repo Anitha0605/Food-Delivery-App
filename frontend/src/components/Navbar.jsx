@@ -104,7 +104,7 @@ const Navbar = () => {
           ) : (
             <div className="flex items-center gap-2">
               <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-300 px-4 py-2 hover:text-orange-500 transition-colors">Login</Link>
-              <Link to="/register" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 shadow-lg shadow-orange-500/20">Sign Up</Link>
+              <Link to="/login?mode=signup"className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-orange-500/20">Sign Up</Link>
             </div>
           )}
         </div>
