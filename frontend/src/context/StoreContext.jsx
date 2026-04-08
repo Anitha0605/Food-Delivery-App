@@ -8,8 +8,12 @@ const StoreContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [token, setToken] = useState("");
 
-    // உங்கள் Render Backend URL
     const url = "https://food-delivery-app-7gis.onrender.com";
+
+    // ✅ கார்ட்டை முழுமையாகக் காலி செய்ய
+    const clearCart = () => {
+        setCartItems({});
+    };
 
     const addToCart = async (itemId) => {
         if (!cartItems[itemId]) {
@@ -62,11 +66,9 @@ const StoreContextProvider = (props) => {
     const loadCartData = async (token) => {
         try {
             const response = await axios.post(url + "/api/cart/get", {}, { headers: { token } });
-            // ✅ ஒருவேளை cartData null ஆக வந்தால் காலியான ஆப்ஜெக்ட் {} வைக்கும்படி மாற்றப்பட்டுள்ளது
-            setCartItems(response.data.cartData || {}); 
+            setCartItems(response.data.cartData || {});
         } catch (error) {
-            console.error("Error loading cart data:", error);
-            setCartItems({}); // எரர் வந்தால் கார்ட்டை காலியாக வைக்கும்
+            setCartItems({});
         }
     };
 
@@ -91,7 +93,8 @@ const StoreContextProvider = (props) => {
         getTotalCartAmount,
         url,
         token,
-        setToken
+        setToken,
+        clearCart // ✅ மற்ற கோப்புகளில் பயன்படுத்த இதை இங்கே சேர்க்க வேண்டும்
     };
 
     return (
