@@ -1,21 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, LogOut, User, Sun, Moon, Phone, MapPin } from 'lucide-react';
 import { useTheme } from '../context/ThemeContent';
+import { StoreContext } from '../context/StoreContext'; // StoreContext-ஐ இம்போர்ட் செய்கிறோம்
 
-const Navbar = ({ cartCount, user, setUser }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
-  
+  // StoreContext-லிருந்து தேவையான டேட்டாவை எடுக்கிறோம்
+  const { cartItems, setToken, token } = useContext(StoreContext);
+
+  // லோக்கல் ஸ்டோரேஜிலிருந்து பயனர் விவரங்களை எடுக்கிறோம்
+  const userData = JSON.parse(localStorage.getItem("user"));
+
+  // கார்ட்டில் உள்ள மொத்த பொருட்களின் எண்ணிக்கையை கணக்கிடுகிறோம்
+  const cartCount = Object.values(cartItems).reduce((acc, count) => acc + count, 0);
+
   const logout = () => {
     localStorage.removeItem('user');
-    setUser(null);
+    localStorage.removeItem('token'); // டோக்கனையும் நீக்க வேண்டும்
+    setToken(""); // Context-ல் உள்ள டோக்கனை காலியாக்குகிறோம்
     navigate('/login');
+    window.location.reload(); // பக்கத்தை புதுப்பிப்பதன் மூலம் பழைய டேட்டாக்கள் மறையும்
   };
 
-  
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -24,8 +34,12 @@ const Navbar = ({ cartCount, user, setUser }) => {
       <div className="bg-slate-900 dark:bg-slate-800 text-white py-2 px-4 hidden md:block">
         <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
           <div className="flex gap-6">
-            <span className="flex items-center gap-2"><Phone size={12} className="text-orange-500" /> +91 98765 43210</span>
-            <span className="flex items-center gap-2"><MapPin size={12} className="text-orange-500" /> Anna Nagar, Chennai</span>
+            <span className="flex items-center gap-2">
+              <Phone size={12} className="text-orange-500" /> +91 98765 43210
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin size={12} className="text-orange-500" /> Anna Nagar, Chennai
+            </span>
           </div>
           <span className="text-orange-400">Free Delivery on orders above ₹500</span>
         </div>
@@ -43,13 +57,13 @@ const Navbar = ({ cartCount, user, setUser }) => {
           <Link to="/menu" className={`text-sm font-bold transition-colors ${isActive('/menu') ? 'text-orange-500' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}>Menu</Link>
           <Link to="/about" className={`text-sm font-bold transition-colors ${isActive('/about') ? 'text-orange-500' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}>About</Link>
           <Link to="/contact" className={`text-sm font-bold transition-colors ${isActive('/contact') ? 'text-orange-500' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}>Contact</Link>
-          {user && (
-            <Link to="/my-orders" className={`text-sm font-bold transition-colors ${isActive('/my-orders') ? 'text-orange-500' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}>My Orders</Link>
+          {token && (
+            <Link to="/myorders" className={`text-sm font-bold transition-colors ${isActive('/myorders') ? 'text-orange-500' : 'text-slate-600 dark:text-slate-300 hover:text-orange-500'}`}>My Orders</Link>
           )}
         </div>
         
         <div className="flex items-center gap-3 md:gap-6">
-          {/* Theme Toggle (Light/Dark Mode) */}
+          {/* Theme Toggle */}
           <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-orange-500 transition-colors">
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
@@ -65,20 +79,20 @@ const Navbar = ({ cartCount, user, setUser }) => {
           </Link>
 
           {/* User Section (Login/Logout/Profile) */}
-          {user ? (
+          {token && userData ? (
             <div className="flex items-center gap-3 border-l dark:border-slate-800 pl-4 md:pl-6">
               <div className="flex flex-col items-end hidden sm:flex">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Welcome</span>
-                <span className="text-sm font-black dark:text-white">{user.name}</span>
+                <span className="text-sm font-black dark:text-white">{userData.name}</span>
               </div>
               <div className="relative group">
                 <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-600 cursor-pointer group-hover:bg-orange-500 group-hover:text-white transition-all">
                   <User size={20} />
                 </div>
-                {/* Dropdown Menu on Hover */}
-                <div className="absolute right-0 top-full pt-2 hidden group-hover:block w-48">
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full pt-2 hidden group-hover:block w-48 shadow-2xl z-50">
                   <div className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl shadow-xl p-2">
-                    <Link to={user.role === 'admin' ? "/admin" : "/my-orders"} className="block px-4 py-2 text-sm font-bold dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl">Dashboard</Link>
+                    <Link to={userData.role === 'admin' ? "/admin" : "/myorders"} className="block px-4 py-2 text-sm font-bold dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl">Dashboard</Link>
                     <button onClick={logout} className="w-full text-left px-4 py-2 text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-xl">Logout</button>
                   </div>
                 </div>
