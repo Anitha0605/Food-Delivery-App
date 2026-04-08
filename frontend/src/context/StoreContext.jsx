@@ -8,8 +8,8 @@ const StoreContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [token, setToken] = useState("");
 
-    // 1. API URL திருத்தம் - இதுதான் உங்கள் CORS எரரை சரி செய்யும்
-    const url = import.meta.env.VITE_API_URL || "http://localhost:5000";
+   // உங்கள் Render Backend URL-ஐ நேரடியாகக் கொடுக்கவும்
+const url = "https://food-delivery-app-7gis.onrender.com";
 
     const addToCart = async (itemId) => {
         if (!cartItems[itemId]) {
