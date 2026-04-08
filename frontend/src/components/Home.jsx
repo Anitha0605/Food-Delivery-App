@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; 
 import { Plus, Star, Flame, ArrowRight, Utensils, Clock, MapPin } from 'lucide-react';
+import { StoreContext } from '../context/StoreContext';
 
 const Home = ({ addToCart }) => {
   const [hotels, setHotels] = useState([]);
@@ -7,7 +8,8 @@ const Home = ({ addToCart }) => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  
+  const { url } = useContext(StoreContext);
+
   const hotelMeta = {
     "Thalappakatti": "https://thalappakatti.com/wp-content/uploads/2016/11/besi1.jpg",
     "Junior Kuppanna": "https://crazymasalafood.com/wp-content/images/2023/08/hotel-junior-kuppanna.jpg",

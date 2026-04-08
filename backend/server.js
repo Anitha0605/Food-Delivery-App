@@ -4,12 +4,13 @@ const mongoose = require("mongoose");
 const path = require("path");
 require("dotenv").config();
 
-// 1. Routes 
+// 1. Routes இம்போர்ட் செய்தல்
 const userRouter = require("./routes/userRoute");
 const adminRouter = require("./routes/adminRoute");
 const foodRouter = require("./routes/foodRoute");
 const orderRouter = require("./routes/orderRoute");
 const messageRouter = require("./routes/messageRoute"); 
+const cartRouter = require("./routes/cartRoute"); // Cart Route சேர்க்கப்பட்டது
 
 // 2. App Configuration
 const app = express();
@@ -18,21 +19,22 @@ const port = process.env.PORT || 5000;
 // 3. Middlewares
 app.use(express.json());
 
-// --- CORS Configuration (திருத்தப்பட்டது) ---
+// --- CORS Configuration ---
+// உங்கள் Vercel URL மற்றும் Localhost இரண்டையும் அனுமதிக்கும்படி அமைக்கப்பட்டுள்ளது
 app.use(cors({
     origin: [
-        "https://food-delivery-app-inky-xi.vercel.app", // உங்கள் Vercel URL
-        "http://localhost:5173",                       // Local Vite
+        "https://food-delivery-app-inky-xi.vercel.app", 
+        "http://localhost:5173", 
         "http://localhost:5174"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
-// Static Folder for Images
+// புகைப்படங்களை அணுக Static Folder (uploads ஃபோல்டரில் படங்கள் இருக்க வேண்டும்)
 app.use("/images", express.static("uploads"));
 
-// 4. API Endpoints
+// 4. API Endpoints இணைத்தல்
 app.use("/api/user", userRouter); 
 app.use("/api/admin", adminRouter); 
 
@@ -44,25 +46,28 @@ app.use("/api/foods", foodRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/orders", orderRouter);
 
+// Cart Routes (இங்குதான் 404 எரர் வந்தது, இப்போது சரிசெய்யப்பட்டது)
+app.use("/api/cart", cartRouter);
+
 // Message Route 
 app.use("/api/messages", messageRouter); 
 
 // 5. Database Connection
-// பாதுகாப்பிற்காக .env-ல் உள்ள URI-யை முதலில் எடுக்கும்படி மாற்றியுள்ளேன்
+// .env கோப்பில் MONGODB_URI இல்லை என்றால் கீழே உள்ள லிங்க் பயன்படுத்தப்படும்
 const mongoURI = process.env.MONGODB_URI || "mongodb://anitha:Rxz1mD55RDCqgBro@ac-wcjbguf-shard-00-00.nng3xmm.mongodb.net:27017,ac-wcjbguf-shard-00-01.nng3xmm.mongodb.net:27017,ac-wcjbguf-shard-00-02.nng3xmm.mongodb.net:27017/?ssl=true&replicaSet=atlas-1npgja-shard-0&authSource=admin&appName=Cluster0";
 
 mongoose.connect(mongoURI)
     .then(() => console.log("✅ MongoDB Connected Successfully"))
     .catch((err) => console.log("❌ MongoDB Connection Error:", err));
 
-// 6. Root Route (Testing)
+// 6. Root Route (API வேலை செய்கிறதா என்று சோதிக்க)
 app.get("/", (req, res) => {
     res.send("🚀 YumDash API is working perfectly!");
 });
 
-// 7. Global 404 Handler
+// 7. Global 404 Handler (தவறான URL-களுக்கு)
 app.use((req, res) => {
-    res.status(404).json({ success: false, message: "Route Not Found" });
+    res.status(404).json({ success: false, message: "Route Not Found - Check your endpoint" });
 });
 
 // 8. Server Start
