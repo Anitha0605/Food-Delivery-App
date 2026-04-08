@@ -20,9 +20,9 @@ const Login = () => {
       endpoint = "/api/admin/login";
     }
 
-    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    const url = `${API_BASE_URL}${endpoint}`;
-
+   // உங்கள் Render URL-ஐ இங்கே நேரடியாகக் கொடுங்கள்
+const API_BASE_URL = "https://food-delivery-app-7gis.onrender.com";
+const url = `${API_BASE_URL}${endpoint}`;
     try {
       const response = await fetch(url, {
         method: "POST",
