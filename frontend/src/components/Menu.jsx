@@ -13,7 +13,7 @@ const Menu = () => {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        // ✅ Context URL
+      
         const res = await fetch(`${url}/api/food/list`);
         const data = await res.json();
         if (data.success) {
@@ -37,7 +37,7 @@ const Menu = () => {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-slate-950">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-        <p className="ml-4 font-bold text-orange-500">Loading Menu...</p>
+        <p className="ml-4 font-bold text-orange-500">Loading YumDash Menu...</p>
       </div>
     );
   }
@@ -70,32 +70,25 @@ const Menu = () => {
         ))}
       </div>
 
-      {/* Food Grid Section */}
+      {/* Food Grid */}
       <div className="mb-16">
-        <div className="flex items-center gap-4 mb-8">
-          <h3 className="text-2xl font-black text-slate-800 dark:text-white border-l-8 border-orange-500 pl-4">
-            {activeCategory} Items
-          </h3>
-          <div className="h-[2px] flex-1 bg-slate-100 dark:bg-slate-800"></div>
-          <span className="text-sm font-bold text-orange-500 bg-orange-50 px-4 py-1 rounded-full border border-orange-100">
-            {filteredFoods.length} Items
-          </span>
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredFoods.map(food => (
             <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 group">
               <div className="relative h-52 overflow-hidden bg-gray-100">
                 <img 
-                  src={`${url}/images/${food.image}`} 
+                  src={food.image} 
                   alt={food.name} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" 
-                  onError={(e) => { e.target.src = "https://via.placeholder.com/300?text=No+Image"; }} 
+                  onError={(e) => { 
+                    e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000"; 
+                  }} 
                 />
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 text-xs font-bold shadow-sm">
                   <Star size={12} className="text-orange-500 fill-orange-500" /> 4.5
                 </div>
               </div>
+              
               <div className="p-6">
                 <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-2">
                   {food.category}
@@ -104,15 +97,14 @@ const Menu = () => {
                   {food.name}
                 </h4>
                 <p className="text-xs text-slate-400 line-clamp-2 h-8 mb-4">
-                  {food.description}
+                  {food.description || "Fresh and delicious meal served hot."}
                 </p>
+                
                 <div className="flex justify-between items-center pt-4 border-t dark:border-slate-800">
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-black text-slate-900 dark:text-white">₹{food.price}</span>
-                  </div>
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">₹{food.price}</span>
                   <button 
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-90"
                     onClick={() => addToCart(food._id)}
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-90"
                   >
                     <Plus size={20} />
                   </button>
