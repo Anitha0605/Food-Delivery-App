@@ -8,8 +8,10 @@ const Home = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
+ 
   const { url, addToCart } = useContext(StoreContext);
 
+ 
   const hotelMeta = {
     "Thalappakatti": "https://thalappakatti.com/wp-content/uploads/2016/11/besi1.jpg",
     "Junior Kuppanna": "https://crazymasalafood.com/wp-content/images/2023/08/hotel-junior-kuppanna.jpg",
@@ -32,7 +34,10 @@ const Home = () => {
         const data = await res.json();
         if (data.success) {
           setFoods(data.data);
-          const uniqueHotels = [...new Set(data.data.map(item => item.hotelName || "YumDash Special"))];
+        
+          const uniqueHotels = [...new Set(data.data.map(item => 
+            item.hotelName || item.category || "YumDash Special"
+          ))];
           setHotels(uniqueHotels);
         }
         setLoading(false);
@@ -58,7 +63,7 @@ const Home = () => {
   }
 
   return (
-    <div className="pb-20 bg-white dark:bg-slate-950 min-h-screen">
+    <div className="pb-20 bg-white dark:bg-slate-950 min-h-screen font-sans">
       
       {/* --- HERO SECTION --- */}
       <div className="bg-orange-50 dark:bg-slate-900/50 py-16 md:py-24 mb-12">
@@ -88,42 +93,51 @@ const Home = () => {
 
       <div id="menu-section" className="max-w-7xl mx-auto px-4 pt-10">
         
-        {/* --- 1.HOTEL CARDS --- */}
+        {/* --- 1. EXPLORE RESTAURANTS --- */}
         {!selectedHotel ? (
           <div className="animate-in fade-in duration-500">
             <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-10 tracking-tighter">
               Explore <span className="text-orange-500">Restaurants</span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {hotels.map((hotel, index) => (
-                <div 
-                  key={index}
-                  onClick={() => setSelectedHotel(hotel)}
-                  className="bg-white dark:bg-slate-900 rounded-[40px] overflow-hidden border-2 border-slate-100 dark:border-slate-800 hover:border-orange-500 cursor-pointer transition-all group shadow-sm hover:shadow-xl"
-                >
-                  <div className="relative h-60 overflow-hidden">
-                    <img 
-                      src={hotelMeta[hotel] || hotelMeta["Default"]} 
-                      alt={hotel} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                      <Star size={12} className="text-orange-500 fill-orange-500" /> 4.2
+            
+            {hotels.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                {hotels.map((hotel, index) => (
+                  <div 
+                    key={index}
+                    onClick={() => setSelectedHotel(hotel)}
+                    className="bg-white dark:bg-slate-900 rounded-[40px] overflow-hidden border-2 border-slate-100 dark:border-slate-800 hover:border-orange-500 cursor-pointer transition-all group shadow-sm hover:shadow-xl"
+                  >
+                    <div className="relative h-60 overflow-hidden">
+                      <img 
+                        src={hotelMeta[hotel] || hotelMeta["Default"]} 
+                        alt={hotel} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) => { e.target.src = hotelMeta["Default"]; }}
+                      />
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                        <Star size={12} className="text-orange-500 fill-orange-500" /> 4.2
+                      </div>
+                    </div>
+                    <div className="p-8">
+                      <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">{hotel}</h3>
+                      <div className="flex items-center gap-4 text-slate-400 text-sm font-bold">
+                        <span className="flex items-center gap-1"><Clock size={14}/> 30 min</span>
+                        <span className="flex items-center gap-1"><MapPin size={14}/> Chennai</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-8">
-                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">{hotel}</h3>
-                    <div className="flex items-center gap-4 text-slate-400 text-sm font-bold">
-                      <span className="flex items-center gap-1"><Clock size={14}/> 30 min</span>
-                      <span className="flex items-center gap-1"><MapPin size={14}/> Chennai</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-slate-50 dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <Utensils className="mx-auto text-slate-300 mb-4" size={48} />
+                <p className="text-slate-500 font-bold">No restaurants found. Please check your admin panel or API data.</p>
+              </div>
+            )}
           </div>
         ) : (
-          /* --- 2.MENU ITEMS --- */
+          /* --- 2. MENU ITEMS --- */
           <div className="animate-in slide-in-from-right-10 duration-500">
             <div className="flex items-center gap-4 mb-10">
               <button 
@@ -139,7 +153,7 @@ const Home = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {foods
-                .filter(food => (food.hotelName || "YumDash Special") === selectedHotel)
+                .filter(food => (food.hotelName || food.category || "YumDash Special") === selectedHotel)
                 .map(food => (
                   <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
                     <div className="relative h-56 overflow-hidden bg-gray-100">
