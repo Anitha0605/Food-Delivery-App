@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Trash2, ArrowRight, ShoppingBag, Ticket, Info, Plus, Minus } from 'lucide-center';
+import { Trash2, ArrowRight, ShoppingBag, Ticket, Info, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
@@ -21,16 +21,6 @@ const Cart = () => {
   
   const totalBeforeDiscount = subtotal + gstAmount + platformFee + deliveryFee;
   const finalAmount = totalBeforeDiscount - discount;
-
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'WELCOME50' && subtotal > 200) {
-      setDiscount(50);
-      alert(" Promo Applied! ₹50 Discounted.");
-    } else {
-      alert("Invalid Coupon or Minimum Order ₹200 required.");
-      setDiscount(0);
-    }
-  };
 
   const handleCheckout = async () => {
     if (!token) {
@@ -114,7 +104,6 @@ const Cart = () => {
               <div className="flex justify-between"><span>Item Total</span><span>₹{subtotal}</span></div>
               <div className="flex justify-between"><span>GST (5%)</span><span>₹{gstAmount.toFixed(2)}</span></div>
               <div className="flex justify-between"><span>Delivery/Platform Fee</span><span>₹{deliveryFee + platformFee}</span></div>
-              {discount > 0 && <div className="flex justify-between text-green-600 font-bold"><span>Discount</span><span>-₹{discount}</span></div>}
               <hr className="dark:border-slate-800" />
               <div className="flex justify-between items-center pt-2">
                 <span className="text-lg font-bold dark:text-white">To Pay</span>
