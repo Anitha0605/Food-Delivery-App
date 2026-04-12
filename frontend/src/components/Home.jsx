@@ -24,7 +24,7 @@ const Home = () => {
     "Saravana Bhavan": "https://incredibleindiaphotogallery.com/wp-content/uploads/2010/08/Hotel-Saravana-Bhavan.jpg",
     "Foodie Hub": "https://i.pinimg.com/736x/58/e0/09/58e00946df2d724c60c66757ec0114af.jpg",
     "Buhari": "https://www.chennaitop10.com/wp-content/uploads/2023/07/buhari-hotel-shenoy-nagar-chennai-north-indian-restaurants-9jd6kmmie5-768x576.jpg",
-    "Default": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000"
+    
   };
 
   useEffect(() => {
