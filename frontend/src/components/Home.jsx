@@ -8,7 +8,6 @@ const Home = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
- 
   const { url, addToCart } = useContext(StoreContext);
 
   const hotelMeta = {
@@ -46,7 +45,8 @@ const Home = () => {
   }, [url]);
 
   const scrollToMenu = () => {
-    document.getElementById('menu-section').scrollIntoView({ behavior: 'smooth' });
+    const section = document.getElementById('menu-section');
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (loading) {
@@ -142,8 +142,13 @@ const Home = () => {
                 .filter(food => (food.hotelName || "YumDash Special") === selectedHotel)
                 .map(food => (
                   <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
-                    <div className="relative h-56 overflow-hidden">
-                      <img src={`${url}/images/${food.image}`} alt={food.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="relative h-56 overflow-hidden bg-gray-100">
+                      <img 
+                        src={food.image} 
+                        alt={food.name} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000"; }}
+                      />
                     </div>
                     <div className="p-6">
                       <h3 className="font-bold text-lg dark:text-white mb-1">{food.name}</h3>
