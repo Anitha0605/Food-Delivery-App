@@ -8,10 +8,8 @@ const Home = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
- 
   const { url, addToCart } = useContext(StoreContext);
 
- 
   const hotelMeta = {
     "Thalappakatti": "https://thalappakatti.com/wp-content/uploads/2016/11/besi1.jpg",
     "Junior Kuppanna": "https://crazymasalafood.com/wp-content/images/2023/08/hotel-junior-kuppanna.jpg",
@@ -24,7 +22,7 @@ const Home = () => {
     "Saravana Bhavan": "https://incredibleindiaphotogallery.com/wp-content/uploads/2010/08/Hotel-Saravana-Bhavan.jpg",
     "Foodie Hub": "https://i.pinimg.com/736x/58/e0/09/58e00946df2d724c60c66757ec0114af.jpg",
     "Buhari": "https://www.chennaitop10.com/wp-content/uploads/2023/07/buhari-hotel-shenoy-nagar-chennai-north-indian-restaurants-9jd6kmmie5-768x576.jpg",
-    
+    "Default": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000"
   };
 
   useEffect(() => {
@@ -34,11 +32,15 @@ const Home = () => {
         const data = await res.json();
         if (data.success) {
           setFoods(data.data);
-        
-          const uniqueHotels = [...new Set(data.data.map(item => 
-            item.hotelName || item.category || "YumDash Special"
-          ))];
-          setHotels(uniqueHotels);
+          
+          // FIX: Only extract unique hotel names, ignoring categories like "Non-Veg"
+          const uniqueHotels = [...new Set(
+            data.data
+              .filter(item => item.hotelName) // Only items that have a specific hotelName property
+              .map(item => item.hotelName)
+          )];
+          
+          setHotels(uniqueHotels.length > 0 ? uniqueHotels : ["YumDash Special"]);
         }
         setLoading(false);
       } catch (err) {
@@ -153,7 +155,7 @@ const Home = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {foods
-                .filter(food => (food.hotelName || food.category || "YumDash Special") === selectedHotel)
+                .filter(food => (food.hotelName || "YumDash Special") === selectedHotel)
                 .map(food => (
                   <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
                     <div className="relative h-56 overflow-hidden bg-gray-100">
