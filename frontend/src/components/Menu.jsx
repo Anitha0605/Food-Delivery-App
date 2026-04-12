@@ -1,31 +1,32 @@
-import React, { useState, useEffect, useContext } from 'react'; // useContext சேர்த்தாச்சு
+import React, { useState, useEffect, useContext } from 'react';
 import { Plus, Star } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext'; // Context-ஐ இம்போர்ட் செய்யவும்
+import { StoreContext } from '../context/StoreContext';
 
-const Menu = () => { // Props தேவையில்லை
+const Menu = () => {
   const [foods, setFoods] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
-
-  // ✅ Context-ல் இருந்து addToCart மற்றும் url-ஐ எடுக்கிறோம்
-  const { addToCart, url } = useContext(StoreContext);
+  const { url, addToCart } = useContext(StoreContext);
 
   const categories = ['All', 'South Indian', 'Non-Veg', 'Drinks'];
 
   useEffect(() => {
-    // ✅ StoreContext-ல் உள்ள url-ஐப் பயன்படுத்துகிறோம்
-    fetch(`${url}/api/food/list`)
-      .then(res => res.json())
-      .then(data => {
+    const fetchMenu = async () => {
+      try {
+        // ✅ Context URL
+        const res = await fetch(`${url}/api/food/list`);
+        const data = await res.json();
         if (data.success) {
           setFoods(data.data);
         }
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error("Menu Fetch Error:", err);
         setLoading(false);
-      });
+      }
+    };
+
+    if (url) fetchMenu();
   }, [url]);
 
   const filteredFoods = activeCategory === 'All' 
@@ -36,7 +37,7 @@ const Menu = () => { // Props தேவையில்லை
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-slate-950">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-        <div className="ml-4 font-bold text-orange-500">Loading Delicacies...</div>
+        <p className="ml-4 font-bold text-orange-500">Loading Menu...</p>
       </div>
     );
   }
@@ -61,7 +62,7 @@ const Menu = () => { // Props தேவையில்லை
             className={`px-8 py-3 rounded-full font-bold transition-all whitespace-nowrap ${
               activeCategory === cat 
               ? 'bg-orange-500 text-white shadow-xl scale-105' 
-              : 'bg-white dark:bg-slate-900 text-slate-500 border dark:border-slate-800 hover:border-orange-200'
+              : 'bg-white dark:bg-slate-900 text-slate-500 border dark:border-slate-800'
             }`}
           >
             {cat}
@@ -77,18 +78,19 @@ const Menu = () => { // Props தேவையில்லை
           </h3>
           <div className="h-[2px] flex-1 bg-slate-100 dark:bg-slate-800"></div>
           <span className="text-sm font-bold text-orange-500 bg-orange-50 px-4 py-1 rounded-full border border-orange-100">
-            {filteredFoods.length} Items Found
+            {filteredFoods.length} Items
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredFoods.map(food => (
-            <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-              <div className="relative h-52 overflow-hidden">
+            <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 group">
+              <div className="relative h-52 overflow-hidden bg-gray-100">
                 <img 
-                  src={`${url}/images/${food.image}`} // ✅ Image Path-ஐ சரிசெய்துள்ளேன்
+                  src={`${url}/images/${food.image}`} 
                   alt={food.name} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" 
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/300?text=No+Image"; }} 
                 />
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 text-xs font-bold shadow-sm">
                   <Star size={12} className="text-orange-500 fill-orange-500" /> 4.5
@@ -109,8 +111,8 @@ const Menu = () => { // Props தேவையில்லை
                     <span className="text-2xl font-black text-slate-900 dark:text-white">₹{food.price}</span>
                   </div>
                   <button 
-                    onClick={() => addToCart(food._id)} // ✅ food._id மட்டும் அனுப்பினால் போதும்
                     className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-90"
+                    onClick={() => addToCart(food._id)}
                   >
                     <Plus size={20} />
                   </button>
