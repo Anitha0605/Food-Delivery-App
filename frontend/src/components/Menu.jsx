@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Star, Search } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react'; // useContext சேர்த்தாச்சு
+import { Plus, Star } from 'lucide-react';
+import { StoreContext } from '../context/StoreContext'; // Context-ஐ இம்போர்ட் செய்யவும்
 
-const Menu = ({ addToCart }) => {
+const Menu = () => { // Props தேவையில்லை
   const [foods, setFoods] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
 
-  
+  // ✅ Context-ல் இருந்து addToCart மற்றும் url-ஐ எடுக்கிறோம்
+  const { addToCart, url } = useContext(StoreContext);
+
   const categories = ['All', 'South Indian', 'Non-Veg', 'Drinks'];
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/food/list`)
+    // ✅ StoreContext-ல் உள்ள url-ஐப் பயன்படுத்துகிறோம்
+    fetch(`${url}/api/food/list`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -22,14 +26,19 @@ const Menu = ({ addToCart }) => {
         console.error("Menu Fetch Error:", err);
         setLoading(false);
       });
-  }, []);
+  }, [url]);
 
   const filteredFoods = activeCategory === 'All' 
     ? foods 
     : foods.filter(f => f.category === activeCategory);
 
   if (loading) {
-    return <div className="text-center py-20 font-bold text-orange-500">Loading 63+ Delicacies...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+        <div className="ml-4 font-bold text-orange-500">Loading Delicacies...</div>
+      </div>
+    );
   }
 
   return (
@@ -52,7 +61,7 @@ const Menu = ({ addToCart }) => {
             className={`px-8 py-3 rounded-full font-bold transition-all whitespace-nowrap ${
               activeCategory === cat 
               ? 'bg-orange-500 text-white shadow-xl scale-105' 
-              : 'bg-white dark:bg-slate-900 text-slate-500 border dark:border-slate-800'
+              : 'bg-white dark:bg-slate-900 text-slate-500 border dark:border-slate-800 hover:border-orange-200'
             }`}
           >
             {cat}
@@ -77,7 +86,7 @@ const Menu = ({ addToCart }) => {
             <div key={food._id} className="bg-white dark:bg-slate-900 rounded-[32px] border dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src={food.image} 
+                  src={`${url}/images/${food.image}`} // ✅ Image Path-ஐ சரிசெய்துள்ளேன்
                   alt={food.name} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" 
                 />
@@ -100,8 +109,8 @@ const Menu = ({ addToCart }) => {
                     <span className="text-2xl font-black text-slate-900 dark:text-white">₹{food.price}</span>
                   </div>
                   <button 
-                    onClick={() => addToCart(food)}
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-lg"
+                    onClick={() => addToCart(food._id)} // ✅ food._id மட்டும் அனுப்பினால் போதும்
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-90"
                   >
                     <Plus size={20} />
                   </button>
