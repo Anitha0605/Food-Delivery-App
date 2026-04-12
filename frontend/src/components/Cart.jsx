@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Trash2, ArrowRight, ShoppingBag, Ticket, Info, Plus, Minus } from 'lucide-react';
+import { Trash2, ArrowRight, ShoppingBag, Ticket, Info, Plus, Minus } from 'lucide-center';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
@@ -83,7 +83,13 @@ const Cart = () => {
           ) : (
             cartData.map((item) => (
               <div key={item._id} className="flex items-center gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border dark:border-slate-800">
-                <img src={`${url}/images/${item.image}`} alt={item.name} className="w-24 h-24 object-cover rounded-xl bg-gray-100" />
+                <img 
+                  src={item.image} 
+                  alt={item.name} 
+                  className="w-24 h-24 object-cover rounded-xl bg-gray-100" 
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/150?text=No+Image"; }}
+                />
+                
                 <div className="flex-1">
                   <h3 className="font-bold text-xl dark:text-white">{item.name}</h3>
                   <p className="text-orange-600 font-bold mb-2">₹{item.price}</p>
