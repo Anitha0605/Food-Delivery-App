@@ -49,7 +49,7 @@ const Admin = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  // ✅ ADD FOOD SUBMISSION (RE-FIXED)
+  //  ADD FOOD SUBMISSION (RE-FIXED)
   const onFoodSubmit = async (e) => {
     e.preventDefault();
     
@@ -62,10 +62,10 @@ const Admin = () => {
     formData.append("category", foodData.category);
     formData.append("hotelName", foodData.hotelName || "YumDash Special");
     formData.append("location", foodData.location || "Chennai");
-    formData.append("image", image); // Inga "image" field backend router-oda match aagum
+    formData.append("image", image); 
 
     try {
-      // Image upload-ku header set pannuvathu best practice
+      
       const response = await axios.post(`${url}/api/food/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -75,7 +75,7 @@ const Admin = () => {
       if (response.data.success) {
         setFoodData({ name: "", description: "", price: "", category: "Veg", hotelName: "", location: "" });
         setImage(null);
-        toast.success("Dish added successfully! 👨‍🍳");
+        toast.success("Dish added successfully! ");
         fetchData(); 
         setActiveTab("manage"); 
       } else {

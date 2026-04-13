@@ -30,7 +30,7 @@ const addFood = async (req, res) => {
         const food = new Food({
             name,
             description,
-            price: Number(price), // String-ah vandha Number-ah mathirum
+            price: Number(price), 
             category,
             image: req.file.filename,
             hotelName,
@@ -44,7 +44,7 @@ const addFood = async (req, res) => {
     } catch (error) {
         console.error("Add Food Error:", error);
         
-        // Error vandha upload aana image-ai delete pannidalaam (to keep folder clean)
+        
         if (req.file) {
             fs.unlink(`uploads/${req.file.filename}`, () => {});
         }
@@ -60,7 +60,7 @@ const addFood = async (req, res) => {
 // 3. Remove Food
 const removeFood = async (req, res) => {
     try {
-        const { id } = req.body; // Frontend-la irundhu vara 'id'
+        const { id } = req.body; 
         
         const food = await Food.findById(id);
         
@@ -68,7 +68,7 @@ const removeFood = async (req, res) => {
             return res.status(404).json({ success: false, message: "Food item not found" });
         }
 
-        // Image-ai uploads folder-la irundhu delete pannuvom
+       
         if (food.image) {
             const imagePath = `uploads/${food.image}`;
             if (fs.existsSync(imagePath)) {
