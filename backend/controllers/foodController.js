@@ -15,12 +15,16 @@ const listFood = async (req, res) => {
 // 2. Add Food
 const addFood = async (req, res) => {
     try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "Image upload failed" });
+        }
+
         const food = new Food({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
             category: req.body.category,
-            image: req.body.image, 
+            image: req.file.filename,
             hotelName: req.body.hotelName,
             location: req.body.location
         });
@@ -29,7 +33,7 @@ const addFood = async (req, res) => {
         res.json({ success: true, message: "Food Added Successfully" });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Error adding food" });
+        res.status(400).json({ success: false, message: "Error adding food", error: error.message });
     }
 };
 
@@ -37,7 +41,9 @@ const addFood = async (req, res) => {
 const removeFood = async (req, res) => {
     try {
         const food = await Food.findById(req.body.id);
-        // fs.unlink(`uploads/${food.image}`, () => {});
+        if (food && food.image) {
+            fs.unlink(`uploads/${food.image}`, () => {});
+        }
 
         await Food.findByIdAndDelete(req.body.id);
         res.json({ success: true, message: "Food Removed" });

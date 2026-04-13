@@ -30,31 +30,22 @@ app.use(cors({
     credentials: true
 }));
 
-app.use("/images", express.static("uploads"));
+// --- Static Files for Food Images ---
+app.use("/images", express.static(path.join(__dirname, "uploads")));
 
 // 4. API Endpoints 
 app.use("/api/user", userRouter); 
 app.use("/api/admin", adminRouter); 
-
-// Food Routes
 app.use("/api/food", foodRouter); 
-app.use("/api/foods", foodRouter); 
-
-// Order Routes
 app.use("/api/order", orderRouter);
-app.use("/api/orders", orderRouter);
-
-// Cart Routes 
 app.use("/api/cart", cartRouter);
-
-// Message Route 
 app.use("/api/messages", messageRouter); 
 
 // 5. Database Connection
-const mongoURI = process.env.MONGODB_URI || "mongodb://anitha:Rxz1mD55RDCqgBro@ac-wcjbguf-shard-00-00.nng3xmm.mongodb.net:27017,ac-wcjbguf-shard-00-01.nng3xmm.mongodb.net:27017,ac-wcjbguf-shard-00-02.nng3xmm.mongodb.net:27017/?ssl=true&replicaSet=atlas-1npgja-shard-0&authSource=admin&appName=Cluster0";
+const mongoURI = process.env.MONGODB_URI;
 
 mongoose.connect(mongoURI)
-    .then(() => console.log("MongoDB Connected Successfully"))
+    .then(() => console.log(" MongoDB Connected Successfully"))
     .catch((err) => console.log(" MongoDB Connection Error:", err));
 
 // 6. Root Route 

@@ -1,83 +1,111 @@
 const express = require("express");
 const foodRouter = express.Router();
 const Food = require("../models/Food");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
-// 1.Get All Foods
+// 1. Ensure 'uploads' directory exists (using absolute path for stability)
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// 2. Multer storage configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } 
+});
+
+// --- ROUTES ---
+
+// List Food Items
 foodRouter.get("/list", async (req, res) => {
     try {
         const foods = await Food.find({});
-        res.status(200).json({
-            success: true,
-            count: foods.length,
-            data: foods
-        });
+        const host = `${req.protocol}://${req.get("host")}`;
+        const formattedFoods = foods.map(food => ({
+            ...food._doc,
+            image: food.image && food.image.startsWith("http")
+                ? food.image
+                : `${host}/images/${food.image}`,
+        }));
+        res.status(200).json({ success: true, data: formattedFoods });
     } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Error fetching food list!",
-            error: err.message
-        });
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// 2. Add New Food
-foodRouter.post("/add", async (req, res) => {
+// Add Food Item
+foodRouter.post("/add", upload.single("image"), async (req, res) => {
     try {
+        // Log setup for Render monitoring
+        console.log("--- New Food Request ---");
+        console.log("Body:", req.body); 
+        console.log("File:", req.file);
+
+        // Validation
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "Image upload failed! Make sure the image field is included." });
+        }
+       
+        if (!req.body.name || !req.body.description || !req.body.price || !req.body.category) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Missing required food fields: name, description, price, or category."
+            });
+        }
+
         const newFood = new Food({
             name: req.body.name,
             description: req.body.description,
-            price: req.body.price,
-            image: req.body.image,
+            price: Number(req.body.price),
+            image: req.file.filename,
             category: req.body.category,
-            hotelName: req.body.hotelName || "YumDash Special", 
-            location: req.body.location || "Chennai",         
-            available: req.body.available !== undefined ? req.body.available : true
+            hotelName: req.body.hotelName || "YumDash Special",
+            location: req.body.location || "Chennai"
         });
 
-        const savedFood = await newFood.save();
-        res.status(201).json({
-            success: true,
-            message: "Food added successfully!",
-            data: savedFood
-        });
+        await newFood.save();
+        res.status(201).json({ success: true, message: "Food added successfully!" });
+
     } catch (err) {
-        res.status(400).json({
-            success: false,
-            message: "Error adding food!",
-            error: err.message
-        });
+        console.error("Backend Error Detail:", err);
+        res.status(500).json({ success: false, message: "Database Error", error: err.message });
     }
 });
 
-// 3. Bulk Add Foods (Admin Panel)
-foodRouter.post("/bulk-add", async (req, res) => {
-    try {
-       
-        const foods = await Food.insertMany(req.body);
-        res.status(201).json({
-            success: true,
-            message: `${foods.length} foods added successfully!`,
-            count: foods.length
-        });
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Error in bulk adding foods!",
-            error: err.message
-        });
-    }
-});
-
-// 4. Remove Food
+// Remove Food Item
 foodRouter.post("/remove", async (req, res) => {
     try {
-        const food = await Food.findByIdAndDelete(req.body.id);
+        const food = await Food.findById(req.body.id);
+        
         if (!food) {
-            return res.status(404).json({ success: false, message: "Food not found!" });
+            return res.status(404).json({ success: false, message: "Food item not found" });
         }
-        res.json({ success: true, message: "Food removed successfully!" });
+
+        // Correct File Deletion Logic
+        if (food.image) {
+            const filePath = path.join(process.cwd(), "uploads", food.image);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+
+        await Food.findByIdAndDelete(req.body.id);
+        res.json({ success: true, message: "Food item removed successfully" });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error removing food!", error: error.message });
+        console.error("Remove Error:", error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
