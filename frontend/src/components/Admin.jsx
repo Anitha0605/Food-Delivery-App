@@ -23,7 +23,7 @@ const Admin = () => {
     location: ""
   });
 
-  // URL setup
+  // URL setup - Backend URL ending-la slash illama paathukonga
   const url = "https://food-delivery-app-7gis.onrender.com";
 
   // Data Fetching
@@ -36,7 +36,7 @@ const Admin = () => {
       ]);
 
       if (orderRes.data.success) {
-        const data = orderRes.data.data.reverse();
+        const data = Array.isArray(orderRes.data.data) ? orderRes.data.data.reverse() : [];
         setOrders(data);
         setTotalEarnings(data.reduce((acc, curr) => acc + Number(curr.amount || 0), 0));
       }
@@ -49,55 +49,38 @@ const Admin = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Add Food Submission
+  // ✅ ADD FOOD SUBMISSION (FIXED WITH AXIOS)
   const onFoodSubmit = async (e) => {
     e.preventDefault();
+    
     if (!image) return toast.error("Please upload an image!");
-
-    if (!foodData.name || !foodData.description || !foodData.price || !foodData.category) {
-      return toast.error("Please complete all required fields.");
-    }
 
     const formData = new FormData();
     formData.append("name", foodData.name);
     formData.append("description", foodData.description);
-    formData.append("price", String(foodData.price));
+    formData.append("price", Number(foodData.price)); 
     formData.append("category", foodData.category);
     formData.append("hotelName", foodData.hotelName);
     formData.append("location", foodData.location);
     formData.append("image", image);
 
     try {
-      const response = await fetch(`${url}/api/food/add`, {
-        method: "POST",
-        body: formData,
-      });
+    
+      const response = await axios.post(`${url}/api/food/add`, formData);
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        console.error("Response parse error:", parseError);
-        data = { success: false, message: "Unexpected server response" };
-      }
-
-      if (!response.ok) {
-        console.error("Submit Error:", data);
-        return toast.error(data.message || "Error adding food");
-      }
-
-      if (data.success) {
+      if (response.data.success) {
         setFoodData({ name: "", description: "", price: "", category: "Veg", hotelName: "", location: "" });
         setImage(null);
-        toast.success("Dish added! 👨‍🍳");
-        fetchData();
-        setActiveTab("manage");
+        toast.success("Dish added successfully! ");
+        fetchData(); 
+        setActiveTab("manage"); 
       } else {
-        toast.error(data.message || "Error adding food");
+        toast.error(response.data.message || "Error adding food");
       }
     } catch (error) {
       console.error("Submit Error:", error);
-      toast.error("Error adding food");
+  
+      toast.error(error.response?.data?.message || "Check your backend route!");
     }
   };
 
@@ -168,7 +151,12 @@ const Admin = () => {
                   <div className="flex gap-6 items-center">
                     <div className="p-4 bg-orange-50 text-orange-500 rounded-3xl"><FiPackage size={32} /></div>
                     <div>
-                      <p className="font-bold text-slate-800">{order.items?.map((item, idx) => `${item.name} x ${item.quantity}${idx === order.items.length - 1 ? '' : ', '}`)}</p>
+                      {/* FIXED ITEM MAPPING WITH OPTIONAL CHAINING */}
+                      <p className="font-bold text-slate-800">
+                        {order.items && order.items.length > 0 
+                          ? order.items.map((item, idx) => `${item.name} x ${item.quantity}${idx === order.items.length - 1 ? '' : ', '}`)
+                          : "No items data"}
+                      </p>
                       <p className="text-sm text-slate-500 font-medium mt-1">{order.address?.firstName} {order.address?.lastName}</p>
                       <p className="text-xs text-slate-400 italic">{order.address?.city}</p>
                     </div>
@@ -201,15 +189,7 @@ const Admin = () => {
                   <FiUpload className="text-3xl text-slate-300" />
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Upload Photo</span>
                 </div>}
-                <input type="file" id="image-upload" hidden accept="image/*" onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  if (file && !file.type.startsWith("image/")) {
-                    toast.error("Please select a valid image file.");
-                    setImage(null);
-                  } else {
-                    setImage(file);
-                  }
-                }} />
+                <input type="file" id="image-upload" hidden accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
               </label>
 
               <div className="grid grid-cols-2 gap-4">
@@ -227,7 +207,7 @@ const Admin = () => {
                   <option value="South Indian">South Indian</option>
                 </select>
               </div>
-              <button type="submit" className="w-full bg-orange-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-orange-600 shadow-lg">Publish Item</button>
+              <button type="submit" className="w-full bg-orange-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-orange-600 shadow-lg transition-all">Publish Item</button>
             </form>
           </div>
         )}
@@ -248,21 +228,12 @@ const Admin = () => {
                         e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000"; 
                       }} 
                     />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1 text-xs font-bold shadow-sm">
-                      ⭐ 4.5
-                    </div>
                   </div>
                   
                   <div className="p-6">
-                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-2">
-                      {food.category}
-                    </span>
-                    <h4 className="font-bold text-slate-800 dark:text-white text-lg line-clamp-1 mb-2">
-                      {food.name}
-                    </h4>
-                    <p className="text-xs text-slate-400 line-clamp-2 h-8 mb-4">
-                      {food.description || "Fresh and delicious meal served hot."}
-                    </p>
+                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-2">{food.category}</span>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-lg line-clamp-1 mb-2">{food.name}</h4>
+                    <p className="text-xs text-slate-400 line-clamp-2 h-8 mb-4">{food.description}</p>
                     
                     <div className="flex justify-between items-center pt-4 border-t dark:border-slate-800">
                       <span className="text-2xl font-black text-slate-900 dark:text-white">₹{food.price}</span>
