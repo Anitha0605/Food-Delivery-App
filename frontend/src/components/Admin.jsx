@@ -23,7 +23,7 @@ const Admin = () => {
     location: ""
   });
 
-  // URL setup - Backend URL ending-la slash illama paathukonga
+  // URL setup
   const url = "https://food-delivery-app-7gis.onrender.com";
 
   // Data Fetching
@@ -49,7 +49,7 @@ const Admin = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  // ✅ ADD FOOD SUBMISSION (FIXED WITH AXIOS)
+  // ✅ ADD FOOD SUBMISSION (RE-FIXED)
   const onFoodSubmit = async (e) => {
     e.preventDefault();
     
@@ -60,27 +60,30 @@ const Admin = () => {
     formData.append("description", foodData.description);
     formData.append("price", Number(foodData.price)); 
     formData.append("category", foodData.category);
-    formData.append("hotelName", foodData.hotelName);
-    formData.append("location", foodData.location);
-    formData.append("image", image);
+    formData.append("hotelName", foodData.hotelName || "YumDash Special");
+    formData.append("location", foodData.location || "Chennai");
+    formData.append("image", image); // Inga "image" field backend router-oda match aagum
 
     try {
-    
-      const response = await axios.post(`${url}/api/food/add`, formData);
+      // Image upload-ku header set pannuvathu best practice
+      const response = await axios.post(`${url}/api/food/add`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
       if (response.data.success) {
         setFoodData({ name: "", description: "", price: "", category: "Veg", hotelName: "", location: "" });
         setImage(null);
-        toast.success("Dish added successfully! ");
+        toast.success("Dish added successfully! 👨‍🍳");
         fetchData(); 
         setActiveTab("manage"); 
       } else {
         toast.error(response.data.message || "Error adding food");
       }
     } catch (error) {
-      console.error("Submit Error:", error);
-  
-      toast.error(error.response?.data?.message || "Check your backend route!");
+      console.error("Submit Error:", error.response?.data || error);
+      toast.error(error.response?.data?.message || "Check your backend server logs!");
     }
   };
 
@@ -114,6 +117,7 @@ const Admin = () => {
 
   const getFoodImage = (food) => {
     if (!food?.image) return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000";
+    // Check if the image is a full URL or just a filename
     return food.image.startsWith("http") ? food.image : `${url}/images/${food.image}`;
   };
 
@@ -141,7 +145,6 @@ const Admin = () => {
       {/* CONTENT AREA */}
       <div className="flex-1 p-6 md:p-14 overflow-y-auto max-h-screen">
         
-        {/* ORDERS TAB */}
         {activeTab === "orders" && (
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-black mb-10 italic">Incoming <span className="text-orange-500">Orders</span></h2>
@@ -151,7 +154,6 @@ const Admin = () => {
                   <div className="flex gap-6 items-center">
                     <div className="p-4 bg-orange-50 text-orange-500 rounded-3xl"><FiPackage size={32} /></div>
                     <div>
-                      {/* FIXED ITEM MAPPING WITH OPTIONAL CHAINING */}
                       <p className="font-bold text-slate-800">
                         {order.items && order.items.length > 0 
                           ? order.items.map((item, idx) => `${item.name} x ${item.quantity}${idx === order.items.length - 1 ? '' : ', '}`)
@@ -178,7 +180,6 @@ const Admin = () => {
           </div>
         )}
 
-        {/* ADD FOOD TAB */}
         {activeTab === "addFood" && (
           <div className="max-w-2xl mx-auto bg-white p-10 rounded-[40px] shadow-xl border">
             <h2 className="text-3xl font-black mb-8 text-center text-slate-800">New <span className="text-orange-500">Creation</span></h2>
@@ -212,7 +213,6 @@ const Admin = () => {
           </div>
         )}
 
-        {/* MANAGE MENU TAB */}
         {activeTab === "manage" && (
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-black mb-10 italic">Manage <span className="text-orange-500">Menu</span></h2>
@@ -248,7 +248,6 @@ const Admin = () => {
           </div>
         )}
 
-        {/* MESSAGES TAB */}
         {activeTab === "messages" && (
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-black mb-10 italic">Customer <span className="text-orange-500">Inquiries</span></h2>
